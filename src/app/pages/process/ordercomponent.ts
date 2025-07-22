@@ -535,8 +535,8 @@ export class OrderComponent implements OnInit {
 
   deleteOrder(order: Order) {
     this.confirmationService.confirm({
-      message: `¿Está seguro de que desea eliminar la orden con ID: ${order.order_id} y descripción "${order.description}"?`,
-      header: 'Confirmar Eliminación',
+      message: `Are you sure to delete ID: ${order.order_id} and description "${order.description}"?`,
+      header: 'Confirm to delete',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.orderService.deleteOrder(order.order_id).subscribe({
@@ -544,8 +544,8 @@ export class OrderComponent implements OnInit {
             this.orders.set(this.orders().filter((val) => val.order_id !== order.order_id));
             this.messageService.add({
               severity: 'success',
-              summary: 'Éxito',
-              detail: response.message || 'Orden eliminada exitosamente.',
+              summary: 'Sucess',
+              detail: response.message || 'Order deleted succesfully.',
               life: 3000,
             });
           },
@@ -554,7 +554,7 @@ export class OrderComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: error.error?.message || 'Error al eliminar la orden.',
+              detail: error.error?.message || 'Error from order delete.',
               life: 3000,
             });
           },
