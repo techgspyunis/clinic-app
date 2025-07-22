@@ -62,12 +62,12 @@ interface NewOrderForm {
 
     <p-toolbar styleClass="mb-4">
       <ng-template #start>
-        <p-button label="Nueva Orden" icon="pi pi-plus" severity="success" class="mr-2" (onClick)="openNew()" />
+        <p-button label="New Order" icon="pi pi-plus" severity="success" class="mr-2" (onClick)="openNew()" />
         </ng-template>
 
-      <ng-template #end>
+      <!-- <ng-template #end>
         <p-button label="Exportar CSV" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
-      </ng-template>
+      </ng-template> -->
     </p-toolbar>
 
     <p-table
@@ -80,13 +80,13 @@ interface NewOrderForm {
       [(selection)]="selectedOrders"
       [rowHover]="true"
       dataKey="order_id"
-      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} órdenes"
+      currentPageReportTemplate="Showing {first} - {last} of {totalRecords} orders"
       [showCurrentPageReport]="true"
       [rowsPerPageOptions]="[10, 20, 30]"
     >
       <ng-template #caption>
         <div class="flex items-center justify-between">
-          <h5 class="m-0">Gestión de Órdenes</h5>
+          <h5 class="m-0">Orders</h5>
           <p-iconfield iconPosition="left">
             <p-inputicon styleClass="pi pi-search" />
             <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar..." />
@@ -95,12 +95,12 @@ interface NewOrderForm {
       </ng-template>
       <ng-template #header>
         <tr>
-          <th pSortableColumn="date" style="min-width:10rem">Fecha <p-sortIcon field="date" /></th>
-          <th pSortableColumn="description" style="min-width:20rem">Descripción <p-sortIcon field="description" /></th>
-          <th pSortableColumn="upload_file" style="min-width:15rem">Archivo Subido <p-sortIcon field="upload_file" /></th>
-          <th pSortableColumn="created_at" style="min-width:15rem">Fecha Creación <p-sortIcon field="created_at" /></th>
-          <th pSortableColumn="is_active" style="min-width:8rem">Activa <p-sortIcon field="is_active" /></th>
-          <th style="min-width:12rem">Acciones</th>
+          <th pSortableColumn="date" style="min-width:10rem">Date <p-sortIcon field="date" /></th>
+          <th pSortableColumn="description" style="min-width:20rem">Description <p-sortIcon field="description" /></th>
+          <th pSortableColumn="upload_file" style="min-width:15rem">File upload <p-sortIcon field="upload_file" /></th>
+          <th pSortableColumn="created_at" style="min-width:15rem">Date created <p-sortIcon field="created_at" /></th>
+          <th pSortableColumn="is_active" style="min-width:8rem">Status <p-sortIcon field="is_active" /></th>
+          <th style="min-width:12rem">Acctions</th>
         </tr>
       </ng-template>
       <ng-template #body let-order>
@@ -110,45 +110,47 @@ interface NewOrderForm {
           <td>{{ order.upload_file }}</td>
           <td>{{ order.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
           <td>
-            <p-tag [value]="order.is_active ? 'Activa' : 'Inactiva'" [severity]="order.is_active ? 'success' : 'danger'" />
+            <p-tag [value]="order.is_active ? 'Active' : 'Inactive'" [severity]="order.is_active ? 'success' : 'danger'" />
           </td>
           <td>
-            <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" severity="info" (click)="viewOrderDetails(order)" pTooltip="Ver Detalles" tooltipPosition="bottom" />
-            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteOrder(order)" pTooltip="Eliminar Orden" tooltipPosition="bottom" />
+            <p-button icon="pi pi-eye" class="mr-2" [rounded]="true" [outlined]="true" severity="info" (click)="viewOrderDetails(order)" pTooltip="Show details" tooltipPosition="bottom" />
+            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteOrder(order)" pTooltip="Delete order" tooltipPosition="bottom" />
           </td>
         </tr>
       </ng-template>
       <ng-template #emptyMessage>
         <tr>
-          <td [attr.colspan]="6" class="text-center">No se encontraron órdenes.</td>
+          <td [attr.colspan]="6" class="text-center">No order founds.</td>
         </tr>
       </ng-template>
     </p-table>
 
-    <p-dialog [(visible)]="orderDialog" [style]="{ width: '75vw' }" header="Detalles de la Nueva Orden" [modal]="true" styleClass="p-fluid">
+    <p-dialog [(visible)]="orderDialog" [style]="{ width: '75vw' }" header="Create a new order" [modal]="true" styleClass="p-fluid">
       <ng-template #content>
-        <div class="grid p-fluid">
+        <!-- <div class="grid p-fluid"> -->
           <div class="field col-12 md:col-6">
-            <label for="date">Fecha</label>
-            <p-calendar id="date" [(ngModel)]="newOrder.date" dateFormat="yy-mm-dd" [showIcon]="true" appendTo="body" />
-            <small class="p-error" *ngIf="submitted && !newOrder.date">La fecha es requerida.</small>
-          </div>
-          <div class="field col-12 md:col-6">
-            <label for="description">Descripción</label>
-            <textarea id="description" pInputTextarea [(ngModel)]="newOrder.description" rows="3" cols="20"></textarea>
-            <small class="p-error" *ngIf="submitted && !newOrder.description">La descripción es requerida.</small>
-          </div>
-          <div class="field col-12">
-            <label for="uploadFile">Cargar Archivo Excel (Detalles de la Orden)</label>
-            <input type="file" (change)="onFileChange($event)" accept=".xlsx, .xls" />
-            <small class="p-error" *ngIf="submitted && newOrder.details.length === 0">Debe cargar un archivo Excel con los detalles.</small>
-            <div *ngIf="newOrder.upload_file">
-                <p>Archivo cargado: <strong>{{ newOrder.upload_file }}</strong></p>
+            <div>
+              <label for="date" class="block font-bold mb-2">Date</label>
+              <p-calendar id="date" [(ngModel)]="newOrder.date" dateFormat="yy-mm-dd" [showIcon]="true" appendTo="body" />
+              <small class="p-error" *ngIf="submitted && !newOrder.date">Date is required.</small>
+            </div>
+            <div>
+               <label for="description" class="block font-bold mb-2">Description</label>
+              <input type="text" id="description" pInputText [(ngModel)]="newOrder.description" autofocus class="w-full"/>
+              <small class="p-error" *ngIf="submitted && !newOrder.description">Description is required.</small>
+            </div>
+            <div>
+              <label for="uploadFile" class="block font-bold mb-2">Upload excel format (Order details)</label>
+              <input type="file" (change)="onFileChange($event)" accept=".xlsx, .xls" />
+              <small class="p-error" *ngIf="submitted && newOrder.details.length === 0">Should be upload a excel file.</small>
+              <div *ngIf="newOrder.upload_file">
+              <p>File uploaded: <strong>{{ newOrder.upload_file }}</strong></p>
+              </div>
             </div>
           </div>
-        </div>
+        <!-- </div> -->
 
-        <h5 *ngIf="newOrder.details && newOrder.details.length > 0">Detalles de la Orden (del Excel)</h5>
+        <h5 *ngIf="newOrder.details && newOrder.details.length > 0">Order details (From Excel)</h5>
         <p-table *ngIf="newOrder.details && newOrder.details.length > 0"
           [value]="newOrder.details"
           [tableStyle]="{ 'min-width': '50rem' }"
@@ -179,34 +181,35 @@ interface NewOrderForm {
           </ng-template>
           <ng-template pTemplate="emptyMessage">
             <tr>
-              <td colspan="7" class="text-center">No hay detalles cargados del archivo Excel.</td>
+              <td colspan="7" class="text-center">No files loaded from excel.</td>
             </tr>
           </ng-template>
         </p-table>
       </ng-template>
 
       <ng-template #footer>
-        <p-button label="Cancelar" icon="pi pi-times" text (click)="hideNewOrderDialog()" />
-        <p-button label="Guardar Orden" icon="pi pi-check" (click)="saveNewOrder()" />
+        <p-button label="Cancel" icon="pi pi-times" text (click)="hideNewOrderDialog()" />
+        <p-button label="Save Order" icon="pi pi-check" (click)="saveNewOrder()" />
       </ng-template>
     </p-dialog>
 
-    <p-dialog [(visible)]="orderDetailsDialog" [style]="{ width: '80vw' }" header="Detalles de la Orden" [modal]="true" styleClass="p-fluid">
+    <p-dialog [(visible)]="orderDetailsDialog" [style]="{ width: '80vw' }" header="Order details" [modal]="true" styleClass="p-fluid">
       <ng-template #content>
         <div *ngIf="currentOrderDetails && currentOrderDetails.length > 0">
-          <h5>Orden ID: {{ selectedOrder?.order_id }}</h5>
-          <p>Descripción: {{ selectedOrder?.description }}</p>
+          <p>Order ID: {{ selectedOrder?.order_id }}</p>
+          <h5>Description: {{ selectedOrder?.description }}</h5>
+          <p>Date: {{ selectedOrder?.date }}</p>
           <p-table [value]="currentOrderDetails" [tableStyle]="{ 'min-width': '50rem' }" [scrollable]="true" scrollHeight="400px">
             <ng-template pTemplate="header">
               <tr>
                 <th>N°</th>
-                <th>Centro Médico</th>
-                <th>Ref Paciente</th>
-                <th>Nombre Paciente</th>
-                <th>Ref Análisis</th>
-                <th>Examen</th>
-                <th>Código</th>
-                <th>Activo</th>
+                <th>Centre medical</th>
+                <th>Ref patient</th>
+                <th>Name patient</th>
+                <th>Ref analyze</th>
+                <th>Nomenclature</th>
+                <th>Code</th>
+                <th>Active</th>
               </tr>
             </ng-template>
             <ng-template pTemplate="body" let-detail>
@@ -218,18 +221,18 @@ interface NewOrderForm {
                 <td>{{ detail.ref_analyze }}</td>
                 <td>{{ detail.nomenclature_examen }}</td>
                 <td>{{ detail.code }}</td>
-                <td><p-tag [value]="detail.is_active ? 'Sí' : 'No'" [severity]="detail.is_active ? 'success' : 'danger'" /></td>
+                <td><p-tag [value]="detail.is_active ? 'Yes' : 'No'" [severity]="detail.is_active ? 'success' : 'danger'" /></td>
               </tr>
             </ng-template>
             <ng-template pTemplate="emptyMessage">
                 <tr>
-                    <td colspan="8" class="text-center">No se encontraron detalles para esta orden.</td>
+                    <td colspan="8" class="text-center">No order details found it.</td>
                 </tr>
             </ng-template>
           </p-table>
         </div>
         <div *ngIf="!currentOrderDetails || currentOrderDetails.length === 0">
-          <p>No se encontraron detalles para esta orden.</p>
+          <p>No orders details found it.</p>
         </div>
       </ng-template>
       <ng-template #footer>
@@ -279,11 +282,11 @@ export class OrderComponent implements OnInit {
         this.orders.set(data);
       },
       error: (error) => {
-        console.error('Error al cargar órdenes:', error);
+        console.error('Error loading orders:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No se pudieron cargar las órdenes.',
+          detail: 'Cant load orders.',
           life: 3000,
         });
         // Si el 404 significa que no hay datos, puedes manejarlo así:
@@ -292,7 +295,7 @@ export class OrderComponent implements OnInit {
             this.messageService.add({
                 severity: 'info',
                 summary: 'Información',
-                detail: 'No se encontraron órdenes.',
+                detail: 'No orders found it.',
                 life: 3000,
             });
         }
@@ -337,7 +340,7 @@ export class OrderComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No se pudieron cargar los detalles de la orden.',
+          detail: 'Cant load order details',
           life: 3000,
         });
         this.currentOrderDetails = null; // Limpiar detalles anteriores

@@ -69,9 +69,9 @@ import { LoginRequest } from '../../core/models/auth.models'; // <--- Importa Lo
                                     <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
                                     <label for="rememberme1">Recuérdame</label>
                                 </div> -->
-                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Olvidaste tu contraseña?</span>
+                                <!-- <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Olvidaste tu contraseña?</span> -->
                             </div>
-                            <p-button label="Iniciar sesión" styleClass="w-full" (onClick)="login()" [loading]="loading"></p-button>
+                            <p-button label="Sign in" styleClass="w-full" (onClick)="login()" [loading]="loading"></p-button>
                         </div>
                     </div>
                 </div>

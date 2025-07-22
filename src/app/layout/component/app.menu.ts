@@ -28,21 +28,20 @@ export class AppMenu {
                 label: 'Process',
                 items: [
                     { label: 'Orders', icon: 'pi pi-fw pi-id-card', routerLink: ['/process/order'] },
-                    { label: 'Invoices', icon: 'pi pi-fw pi-check-square', routerLink: ['/uikit/input'] }
+                    { label: 'Invoices', icon: 'pi pi-fw pi-check-square', routerLink: ['/process/invoice'] }
                 ]
             },
              {
                 label: 'Tools',
                 items: [
-                    { label: 'Orders', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
-                    { label: 'Invoices', icon: 'pi pi-fw pi-check-square', routerLink: ['/uikit/input'] }
+                    { label: 'Generate order', icon: 'pi pi-fw pi-id-card', routerLink: ['/tools/generate-order'] }
                 ]
             },
              {
                 label: 'Reports',
                 items: [
-                    { label: 'Orders', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
-                    { label: 'Invoices', icon: 'pi pi-fw pi-check-square', routerLink: ['/uikit/input'] }
+                    { label: 'Orders', icon: 'pi pi-fw pi-id-card', routerLink: ['/reports/issues'] },
+                    { label: 'Invoices', icon: 'pi pi-fw pi-check-square', routerLink: ['/reports/compare'] }
                 ]
             }
         ];
