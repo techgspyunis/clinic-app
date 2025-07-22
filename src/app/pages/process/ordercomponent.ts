@@ -66,7 +66,7 @@ interface NewOrderForm {
 
     <p-toolbar styleClass="mb-4">
       <ng-template #start>
-        <p-button label="New Order" icon="pi pi-plus" severity="success" class="mr-2" (onClick)="openNew()" />
+        <p-button label="New Order" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
       </ng-template>
 
       </p-toolbar>

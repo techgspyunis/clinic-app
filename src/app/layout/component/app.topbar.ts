@@ -79,7 +79,7 @@ import { AuthService } from '../../core/auth.service';
                     </button>
                     <button type="button" class="layout-topbar-action" (click)="logout()">
                         <i class="pi pi-fw pi-sign-out"></i>
-                        <span>Salir</span>
+                        <span>Sign out</span>
                     </button>
                 </div>
             </div>
