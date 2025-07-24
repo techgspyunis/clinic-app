@@ -93,7 +93,7 @@ export class Login {
     login(): void {
         // Validaciones básicas antes de enviar
         if (!this.nombreUsuario || !this.password) {
-            this.messageService.add({severity:'error', summary:'Error', detail:'Por favor, ingresa nombre de usuario y contraseña.'});
+            this.messageService.add({severity:'error', summary:'Error', detail:'Please enter your username and password.'});
             return;
         }
 
