@@ -1,10 +1,34 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { ProgressSpinnerModule } from 'primeng/progressspinner'; // Importar el módulo del spinner
+import { BlockUIModule } from 'primeng/blockui'; // Importar el módulo BlockUI
+import { CommonModule } from '@angular/common';
+import { LoadingService } from './app/core/services/loading.service';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [RouterModule],
-    template: `<router-outlet></router-outlet>`
+    imports: [
+        CommonModule,
+        RouterModule,
+        ProgressSpinnerModule,
+        BlockUIModule],
+    template: `<div class="app-container">
+      <router-outlet />
+    </div>
+
+    <p-blockUI [blocked]="loadingService.loading()">
+      <div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <span style="font-size: 1.5em; font-weight: bold;">Loading...</span>
+        </div>
+    </p-blockUI>`
 })
-export class AppComponent {}
+export class AppComponent implements OnInit{
+    constructor(public loadingService: LoadingService) { // Inyectar el servicio de carga
+    // El servicio es público para poder acceder a `loadingService.loading()` directamente en el template
+  }
+
+  ngOnInit() {
+    // Puedes inicializar algo aquí si es necesario
+  }
+}

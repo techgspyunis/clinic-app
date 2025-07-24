@@ -10,6 +10,7 @@ import Aura from '@primeng/themes/aura';
 import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 import { authInterceptor } from './app/core/auth.interceptor'; // <--- Importa tu interceptor funcional
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,6 +30,7 @@ export const appConfig: ApplicationConfig = {
     // Habilita las animaciones asíncronas (común en nuevas apps Angular)
     provideAnimationsAsync(),
 
+    provideAnimations(),
     // Provee el MessageService de PrimeNG globalmente para mensajes de notificación
     MessageService, // <--- Añadido MessageService
 

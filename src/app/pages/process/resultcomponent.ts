@@ -18,6 +18,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { InvoiceService } from '../../core/services/invoice.service';
 import { AdministrativeRecord, AdministrativeResult } from '../../core/models/administrative.model';
+import { LoadingService } from '../../core/services/loading.service'; // Importar el servicio de carga
 
 @Component({
   selector: 'app-result',
@@ -192,7 +193,8 @@ export class ResultComponent implements OnInit {
   constructor(
     private invoiceService: InvoiceService,
     private messageService: MessageService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit() {
@@ -200,9 +202,11 @@ export class ResultComponent implements OnInit {
   }
 
   loadAdministrativeRecords() {
+    this.loadingService.show();
     this.invoiceService.getAdministrativeRecords().subscribe({
       next: (data) => {
         this.administrativeRecords.set(data);
+        this.loadingService.hide();
       },
       error: (error) => {
         console.error('Error loading administrative records:', error);
@@ -212,6 +216,7 @@ export class ResultComponent implements OnInit {
           detail: 'Could not load administrative records.',
           life: 3000,
         });
+        this.loadingService.hide();
       },
     });
   }
@@ -232,10 +237,12 @@ export class ResultComponent implements OnInit {
 
   viewResults(record: AdministrativeRecord) {
     this.selectedAdministrativeRecord = record;
+    this.loadingService.show();
     this.invoiceService.getAdministrativeResults(record.administrative_id).subscribe({
       next: (results) => {
         this.administrativeResults = results;
         this.resultsDialog = true;
+        this.loadingService.hide();
       },
       error: (error) => {
         console.error('Error loading administrative results:', error);
@@ -245,6 +252,7 @@ export class ResultComponent implements OnInit {
           detail: 'Could not load results for this record.',
           life: 3000,
         });
+        this.loadingService.hide();
         this.administrativeResults = null;
         this.resultsDialog = true;
       },

@@ -3,3 +3,31 @@
 @use './assets/layout/layout.scss';
 @use 'primeicons/primeicons.css';
 @use './assets/demo/demo.scss';
+
+/* Asegura que el p-blockui cubra toda la ventana y centre el spinner */
+.p-blockui {
+  position: fixed; /* Asegura que cubra la ventana entera */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex !important; /* Usar !important para anular posibles anulaciones */
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.4) !important; /* Fondo semi-transparente, !important */
+  z-index: 99999 !important; /* Un z-index muy alto para asegurar visibilidad */
+  pointer-events: all; /* Asegura que bloquee la interacción */
+}
+
+/* Opcional: ajustar el tamaño o color del spinner si lo necesitas */
+.p-progress-spinner {
+    width: 4rem;
+    height: 4rem;
+}
+.p-progress-spinner .p-progress-spinner-circle {
+    stroke: var(--primary-color, #10B981) !important; // ⭐ Color del trazo (línea que se mueve)
+    stroke-width: 8px !important; // Grosor de la línea
+    animation-duration: 0.8s !important; // ⭐ Duración de la animación (velocidad)
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important; // Tipo de curva de animación
+    animation-iteration-count: infinite !important; // Bucle infinito
+}

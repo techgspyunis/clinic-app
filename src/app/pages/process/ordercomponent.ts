@@ -22,6 +22,7 @@ import { TooltipModule } from 'primeng/tooltip'; // ⭐ Añadido para los toolti
 // Importar nuestros modelos y servicio
 import { Order, OrderDetail, CreateOrderPayload, OrderDetailPayload } from '../../core/models/order.model';
 import { OrderService } from '../../core/services/order.service';
+import { LoadingService } from '../../core/services/loading.service'; // Importar el servicio de carga
 
 // Importar para la carga de archivos Excel
 import * as XLSX from 'xlsx';
@@ -269,7 +270,8 @@ export class OrderComponent implements OnInit {
   constructor(
     private orderService: OrderService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit() {
@@ -278,9 +280,11 @@ export class OrderComponent implements OnInit {
 
   // --- Loading and Filtering Methods ---
   loadOrders() {
+    this.loadingService.show();
     this.orderService.getOrders().subscribe({
       next: (data) => {
         this.orders.set(data);
+        this.loadingService.hide();
       },
       error: (error) => {
         console.error('Error loading orders:', error);
@@ -290,6 +294,7 @@ export class OrderComponent implements OnInit {
           detail: 'Could not load orders.', // ⭐ Mensaje ajustado
           life: 3000,
         });
+        this.loadingService.hide();
         if (error.status === 404) {
             this.orders.set([]);
             this.messageService.add({
@@ -330,8 +335,10 @@ export class OrderComponent implements OnInit {
 
   viewOrderDetails(order: Order) {
     this.selectedOrder = order;
+    this.loadingService.show();
     this.orderService.getOrderDetails(order.order_id).subscribe({
       next: (details) => {
+        this.loadingService.hide();
         this.currentOrderDetails = details;
         this.orderDetailsDialog = true;
       },
@@ -343,6 +350,7 @@ export class OrderComponent implements OnInit {
           detail: 'Could not load order details.', // ⭐ Mensaje ajustado
           life: 3000,
         });
+        this.loadingService.hide();
         this.currentOrderDetails = null;
         this.orderDetailsDialog = true;
       },
@@ -476,11 +484,14 @@ export class OrderComponent implements OnInit {
 
   // --- Save and Delete Methods ---
   saveNewOrder() {
+    
     this.submitted = true;
+
 
     // Basic validations before sending
     if (!this.newOrder.date) {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Date is required.', life: 3000 }); // ⭐ Traducido
+
         return;
     }
     if (!this.newOrder.description.trim()) {
@@ -507,7 +518,7 @@ export class OrderComponent implements OnInit {
         upload_file: this.newOrder.upload_file,
         details: this.newOrder.details
     };
-
+    this.loadingService.show();
     this.orderService.createOrder(payload).subscribe({
       next: (response) => {
         this.messageService.add({
@@ -516,10 +527,12 @@ export class OrderComponent implements OnInit {
           detail: response.message || 'Order created successfully.', // ⭐ Traducido
           life: 3000,
         });
+        this.loadingService.hide();
         this.hideNewOrderDialog();
         this.loadOrders();
       },
       error: (error) => {
+        this.loadingService.hide();
         console.error('Error creating order:', error); // ⭐ Traducido
         this.messageService.add({
           severity: 'error',
@@ -537,9 +550,11 @@ export class OrderComponent implements OnInit {
       header: 'Confirm Deletion', // ⭐ Traducido
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
+        this.loadingService.show();
         this.orderService.deleteOrder(order.order_id).subscribe({
           next: (response) => {
             this.orders.set(this.orders().filter((val) => val.order_id !== order.order_id));
+            this.loadingService.hide();
             this.messageService.add({
               severity: 'success',
               summary: 'Success', // ⭐ Traducido
@@ -548,6 +563,7 @@ export class OrderComponent implements OnInit {
             });
           },
           error: (error) => {
+            this.loadingService.hide();
             console.error('Error deleting order:', error); // ⭐ Traducido
             this.messageService.add({
               severity: 'error',

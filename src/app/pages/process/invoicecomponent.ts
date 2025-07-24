@@ -22,6 +22,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { Invoice, InvoiceDetail, CreateInvoicePayload, InvoiceDetailPayload } from '../../core/models/invoice.model';
 import { InvoiceService, LabFileUploadResponse  } from '../../core/services/invoice.service';
+import { LoadingService } from '../../core/services/loading.service'; // Importar el servicio de carga
 
 import * as XLSX from 'xlsx';
 
@@ -299,7 +300,8 @@ submittedZipFile: boolean = false;
   constructor(
     private invoiceService: InvoiceService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit() {
@@ -308,18 +310,22 @@ submittedZipFile: boolean = false;
 
   // --- Loading and Filtering Methods ---
   loadInvoices() {
+    this.loadingService.show();
     this.invoiceService.getInvoices().subscribe({
       next: (data) => {
+        this.loadingService.hide();
         this.invoices.set(data);
       },
       error: (error) => {
         console.error('Error loading invoices:', error);
+        this.loadingService.hide();
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
           detail: 'Could not load invoices.',
           life: 3000,
         });
+        this.loadingService.hide();
         if (error.status === 404) {
             this.invoices.set([]);
             this.messageService.add({
@@ -357,19 +363,22 @@ submittedZipFile: boolean = false;
 
   viewInvoiceDetails(invoice: Invoice) {
     this.selectedInvoice = invoice;
+    this.loadingService.show();
     this.invoiceService.getInvoiceDetails(invoice.invoice_id).subscribe({
       next: (details) => {
+        this.loadingService.hide();
         this.currentInvoiceDetails = details;
         this.invoiceDetailsDialog = true;
       },
       error: (error) => {
         console.error('Error loading invoice details:', error);
+        this.loadingService.hide();
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
           detail: 'Could not load invoice details.',
           life: 3000,
-        });
+        }); 
         this.currentInvoiceDetails = null;
         this.invoiceDetailsDialog = true;
       },
@@ -423,6 +432,7 @@ submittedZipFile: boolean = false;
       life: 5000, // Mostrar por más tiempo ya que el procesamiento puede tardar
     });
 
+    this.loadingService.show();
     this.invoiceService.uploadLabFile(this.selectedZipFile).subscribe({
       next: (response: LabFileUploadResponse) => {
         this.messageService.add({
@@ -441,6 +451,7 @@ submittedZipFile: boolean = false;
           });
         }
         this.hideUploadZipFileDialog(); // Cerrar el modal al finalizar
+        this.loadingService.hide();
       },
       error: (error) => {
         console.error('Error uploading lab file:', error);
@@ -460,6 +471,7 @@ submittedZipFile: boolean = false;
           detail: errorMessage, // Usamos el mensaje de error capturado
           life: 5000,
         });
+        this.loadingService.hide();
       },
     });
   }
@@ -614,6 +626,7 @@ submittedZipFile: boolean = false;
         details: this.newInvoice.details
     };
 
+    this.loadingService.show();
     this.invoiceService.createInvoice(payload).subscribe({
       next: (response) => {
         this.messageService.add({
@@ -622,6 +635,7 @@ submittedZipFile: boolean = false;
           detail: response.message || 'Invoice created successfully.',
           life: 3000,
         });
+        this.loadingService.hide();
         this.hideNewInvoiceDialog();
         this.loadInvoices();
       },
@@ -633,6 +647,7 @@ submittedZipFile: boolean = false;
           detail: error.error?.message || 'Error creating the invoice.',
           life: 3000,
         });
+        this.loadingService.hide();
       },
     });
   }
@@ -643,6 +658,7 @@ submittedZipFile: boolean = false;
       header: 'Confirm Deletion',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
+        this.loadingService.show();
         this.invoiceService.deleteInvoice(invoice.invoice_id).subscribe({
           next: (response) => {
             this.invoices.set(this.invoices().map(inv => inv.invoice_id === invoice.invoice_id ? { ...inv, is_active: false } : inv));
@@ -653,6 +669,7 @@ submittedZipFile: boolean = false;
               detail: response.message || 'Invoice marked as inactive successfully.',
               life: 3000,
             });
+            this.loadingService.hide();
           },
           error: (error) => {
             console.error('Error deleting invoice:', error);
@@ -662,6 +679,7 @@ submittedZipFile: boolean = false;
               detail: error.error?.message || 'Error deleting the invoice.',
               life: 3000,
             });
+            this.loadingService.hide();
           },
         });
       },
@@ -676,19 +694,21 @@ submittedZipFile: boolean = false;
       icon: 'pi pi-info-circle',
       accept: () => {
         // ⭐ Aquí, 'response' ahora será directamente el objeto Invoice actualizado
+        this.loadingService.show();
         this.invoiceService.updateInvoicePaidStatus(invoice.invoice_id, invoice.is_payed).subscribe({
           next: (updatedInvoice: Invoice) => { // ⭐ Tipado como Invoice
             // Actualizar el signal con el objeto Invoice actualizado recibido del backend
             this.invoices.update(invoices => invoices.map(inv =>
               inv.invoice_id === updatedInvoice.invoice_id ? updatedInvoice : inv
             ));
-
+this.loadingService.hide();
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
               detail: 'Invoice paid status updated successfully.', // Mensaje genérico o si el backend lo devuelve, usarlo
               life: 3000,
             });
+
           },
           error: (error) => {
             console.error('Error updating paid status:', error);
@@ -700,6 +720,7 @@ submittedZipFile: boolean = false;
             });
             // Revertir el cambio en el UI si la llamada falla
             invoice.is_payed = originalStatus;
+            this.loadingService.hide();
           },
         });
       },
