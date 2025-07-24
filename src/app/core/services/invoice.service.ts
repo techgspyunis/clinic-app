@@ -10,12 +10,33 @@ import {
   CreateInvoiceResponse,
   GenericApiResponse,
 } from '../models/invoice.model'; // ⭐ Importar los modelos de Invoice
+import {
+  AdministrativeRecord, // ⭐ Importar la nueva interfaz
+  AdministrativeResult, // ⭐ Importar la nueva interfaz
+} from '../models/administrative.model';
+
+export interface LabFileUploadResponse {
+  message: string;
+  processedFilesCount: number;
+  totalErrors: number;
+  skippedFiles: string[];
+  processedRecords: Array<{
+    administrativeId: string;
+    labFileName: string;
+    storageUrl: string;
+  }>;
+  errors: any[];
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class InvoiceService {
   private apiUrl = 'https://clinic-express.onrender.com/invoices'; // ⭐ Base URL para Invoices
+
+  private uploadLabFileUrl = 'https://clinic-express.onrender.com/upload-lab-file';
+
+  private administrativeApiUrl = 'https://clinic-express.onrender.com/administratives';
 
   constructor(private http: HttpClient) {}
 
@@ -53,6 +74,22 @@ export class InvoiceService {
 
   updateInvoicePaidStatus(invoiceId: string, isPayed: boolean): Observable<Invoice> { // ⭐ Cambiado a Observable<Invoice>
     return this.http.patch<Invoice>(`${this.apiUrl}/${invoiceId}/payment`, { is_payed: isPayed });
+  }
+
+  uploadLabFile(file: File): Observable<LabFileUploadResponse> {
+    const formData: FormData = new FormData();
+    formData.append('file', file, file.name); // 'file' debe coincidir con la 'key' esperada por el backend
+
+    // ⭐ HttpClient maneja automáticamente el Content-Type: multipart/form-data
+    return this.http.post<LabFileUploadResponse>(this.uploadLabFileUrl, formData);
+  }
+
+  getAdministrativeRecords(): Observable<AdministrativeRecord[]> {
+    return this.http.get<AdministrativeRecord[]>(this.administrativeApiUrl);
+  }
+
+  getAdministrativeResults(administrativeId: string): Observable<AdministrativeResult[]> {
+    return this.http.get<AdministrativeResult[]>(`${this.administrativeApiUrl}/${administrativeId}/results`);
   }
   // ⭐ Si hubiera un endpoint para actualizar o un GET por ID, se añadirían aquí.
   // Por ejemplo:

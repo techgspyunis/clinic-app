@@ -28,7 +28,8 @@ export class AppMenu {
                 label: 'Process',
                 items: [
                     { label: 'Orders', icon: 'pi pi-fw pi-id-card', routerLink: ['/process/order'] },
-                    { label: 'Invoices', icon: 'pi pi-fw pi-check-square', routerLink: ['/process/invoice'] }
+                    { label: 'Invoices', icon: 'pi pi-fw pi-check-square', routerLink: ['/process/invoice'] },
+                    { label: 'Results', icon: 'pi pi-fw pi-tablet', routerLink: ['/process/result'] }
                 ]
             },
              {

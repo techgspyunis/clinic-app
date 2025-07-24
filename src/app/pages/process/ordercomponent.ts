@@ -67,6 +67,7 @@ interface NewOrderForm {
     <p-toolbar styleClass="mb-4">
       <ng-template #start>
         <p-button label="New Order" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
+        <p-button label="Download Order Format" icon="pi pi-download" severity="secondary" (onClick)="downloadOrderFormat()" />
       </ng-template>
 
       </p-toolbar>
@@ -557,6 +558,56 @@ export class OrderComponent implements OnInit {
           },
         });
       },
+    });
+  }
+
+  downloadOrderFormat() {
+    const headers = [
+      'N°',
+      'CENTRE MEDICAL',
+      'REF PATIENT',
+      'NOMS DU PATIENT',
+      'REF ANALYSE',
+      `NOMENCLATURE DE L'EXAMEN`,
+      'CODE'
+    ];
+
+    const data = [headers];
+
+    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(data);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'OrderDetails');
+
+    const wbout: string = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+    function s2ab(s: string): ArrayBuffer {
+      const buf = new ArrayBuffer(s.length);
+      const view = new Uint8Array(buf);
+      for (let i = 0; i < s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+      return buf;
+    }
+
+    const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+    const fileName = 'order_format.xlsx';
+
+    if (window.navigator && (window.navigator as any).msSaveOrOpenBlob) {
+      (window.navigator as any).msSaveOrOpenBlob(blob, fileName);
+    } else {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Download',
+      detail: 'Order format downloaded.',
+      life: 3000,
     });
   }
 

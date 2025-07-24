@@ -21,7 +21,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { TooltipModule } from 'primeng/tooltip';
 
 import { Invoice, InvoiceDetail, CreateInvoicePayload, InvoiceDetailPayload } from '../../core/models/invoice.model';
-import { InvoiceService } from '../../core/services/invoice.service';
+import { InvoiceService, LabFileUploadResponse  } from '../../core/services/invoice.service';
 
 import * as XLSX from 'xlsx';
 
@@ -62,6 +62,9 @@ interface NewInvoiceForm {
     <p-toolbar styleClass="mb-4">
       <ng-template #start>
         <p-button label="New Invoice" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
+        <p-button label="Download Invoice Format" icon="pi pi-download" severity="secondary" class="mr-2" (onClick)="downloadInvoiceFormat()" />
+        <!-- ⭐ Nuevo botón para subir archivo ZIP ⭐ -->
+        <p-button label="Upload Zip File" icon="pi pi-upload" severity="info" (onClick)="openUploadZipFileDialog()" />
       </ng-template>
     </p-toolbar>
 
@@ -149,7 +152,7 @@ interface NewInvoiceForm {
           </div>
           <div class="field col-12">
             <label for="uploadFile" class="block font-bold mb-2">Upload Excel File (Invoice Details)</label>
-            <input type="file" (change)="onFileChange($event)" accept=".xlsx, .xls" />
+            <input type="file" (change)="onExcelFileChange($event)" accept=".xlsx, .xls" />
             <small class="p-error" *ngIf="submitted && newInvoice.details.length === 0">An Excel file with details is required.</small>
             <div *ngIf="newInvoice.upload_file">
                 <p>File uploaded: <strong>{{ newInvoice.upload_file }}</strong></p>
@@ -246,6 +249,24 @@ interface NewInvoiceForm {
         <p-button label="Close" icon="pi pi-times" text (click)="hideInvoiceDetailsDialog()" />
       </ng-template>
     </p-dialog>
+
+    <!-- ⭐ Nuevo Modal para Subir Archivo ZIP ⭐ -->
+    <p-dialog [(visible)]="uploadZipFileDialog" [style]="{ width: '50vw' }" header="Upload Lab Results (ZIP)" [modal]="true" styleClass="p-fluid">
+      <ng-template #content>
+        <div class="field">
+          <label for="zipFile" class="block font-bold mb-2">Select ZIP File</label>
+          <input type="file" id="zipFile" (change)="onZipFileChange($event)" accept=".zip" />
+          <small class="p-error" *ngIf="submittedZipFile && !selectedZipFile">A ZIP file is required.</small>
+          <div *ngIf="selectedZipFile">
+            <p>Selected file: <strong>{{ selectedZipFile.name }}</strong></p>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template #footer>
+        <p-button label="Cancel" icon="pi pi-times" text (click)="hideUploadZipFileDialog()" />
+        <p-button label="Upload" icon="pi pi-upload" (click)="uploadZipFile()" />
+      </ng-template>
+    </p-dialog>
   `,
   providers: [MessageService, ConfirmationService, DatePipe]
 })
@@ -257,8 +278,11 @@ export class InvoiceComponent implements OnInit {
   selectedInvoice: Invoice | null = null;
 
   invoiceDialog: boolean = false;
+  orderDetailsDialog: boolean = false;
+   uploadZipFileDialog: boolean = false; // ⭐ Nueva propiedad para el modal de subida ZIP
   invoiceDetailsDialog: boolean = false;
   submitted: boolean = false;
+submittedZipFile: boolean = false; 
 
   newInvoice: NewInvoiceForm = {
     date: '',
@@ -267,6 +291,8 @@ export class InvoiceComponent implements OnInit {
     upload_file: '',
     details: [],
   };
+
+  selectedZipFile: File | null = null; // ⭐ Propiedad para almacenar el archivo ZIP seleccionado
 
   currentInvoiceDetails: InvoiceDetail[] | null = null;
 
@@ -356,8 +382,92 @@ export class InvoiceComponent implements OnInit {
     this.selectedInvoice = null;
   }
 
+  openUploadZipFileDialog() {
+    this.selectedZipFile = null; // Limpiar archivo previo
+    this.submittedZipFile = false;
+    this.uploadZipFileDialog = true;
+  }
+
+   hideUploadZipFileDialog() {
+    this.uploadZipFileDialog = false;
+    this.selectedZipFile = null;
+    this.submittedZipFile = false;
+  }
+
+  onZipFileChange(event: any) {
+    const target: DataTransfer = <DataTransfer>event.target;
+    if (target.files.length > 0) {
+      this.selectedZipFile = target.files[0];
+    } else {
+      this.selectedZipFile = null;
+    }
+  }
+
+  uploadZipFile() {
+    this.submittedZipFile = true; // Activar validación
+
+    if (!this.selectedZipFile) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Please select a ZIP file to upload.',
+        life: 3000,
+      });
+      return;
+    }
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Uploading',
+      detail: 'Processing file... Please wait.',
+      life: 5000, // Mostrar por más tiempo ya que el procesamiento puede tardar
+    });
+
+    this.invoiceService.uploadLabFile(this.selectedZipFile).subscribe({
+      next: (response: LabFileUploadResponse) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: response.message || 'Lab file processed successfully.',
+          life: 5000,
+        });
+        // Puedes mostrar más detalles si quieres, por ejemplo:
+        if (response.processedFilesCount > 0) {
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Details',
+            detail: `${response.processedFilesCount} LAB files processed. ${response.totalErrors} errors.`,
+            life: 7000,
+          });
+        }
+        this.hideUploadZipFileDialog(); // Cerrar el modal al finalizar
+      },
+      error: (error) => {
+        console.error('Error uploading lab file:', error);
+        let errorMessage = 'Failed to upload and process lab file.';
+
+        // ⭐ Lógica para manejar el error de archivo duplicado ⭐
+        if (error.error && typeof error.error === 'object' && error.error.error) {
+          errorMessage = error.error.error; // Captura el mensaje de error específico del backend
+        } else if (error.message) {
+          errorMessage = error.message; // Mensaje de error general de la petición HTTP
+        }
+        // Puedes añadir más lógica si sabes que hay otros tipos de errores específicos.
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Upload Error',
+          detail: errorMessage, // Usamos el mensaje de error capturado
+          life: 5000,
+        });
+      },
+    });
+  }
+
+
+
   // --- Excel File Upload Logic ---
-  onFileChange(event: any) {
+  onExcelFileChange(event: any) {
     const target: DataTransfer = <DataTransfer>event.target;
     if (target.files.length !== 1) {
       this.messageService.add({
@@ -597,6 +707,62 @@ export class InvoiceComponent implements OnInit {
         // Si el usuario cancela la confirmación, revertir el cambio en el UI
         invoice.is_payed = originalStatus;
       }
+    });
+  }
+
+  downloadInvoiceFormat() {
+    const headers = [
+      'demande',
+      'name_patient',
+      'date_prel',
+      'ref_patient',
+      'montant',
+      'unknow',
+    ];
+
+    // Crea un array de arrays, donde la primera fila son los encabezados
+    const data = [headers];
+
+    // Crea un nuevo libro de trabajo
+    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(data);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'InvoiceDetails');
+
+    // Genera el archivo Excel en formato binario
+    const wbout: string = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+    // Función para convertir string binario a ArrayBuffer
+    function s2ab(s: string): ArrayBuffer {
+      const buf = new ArrayBuffer(s.length);
+      const view = new Uint8Array(buf);
+      for (let i = 0; i < s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+      return buf;
+    }
+
+    // Crea un Blob y descarga el archivo
+    const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+    const fileName = 'invoice_details_format.xlsx';
+
+    if (window.navigator && (window.navigator as any).msSaveOrOpenBlob) {
+      // Para IE
+      (window.navigator as any).msSaveOrOpenBlob(blob, fileName);
+    } else {
+      // Para otros navegadores
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Download',
+      detail: 'Invoice details format downloaded.',
+      life: 3000,
     });
   }
 
