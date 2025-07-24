@@ -11,17 +11,14 @@ export class LoadingService {
 
   constructor() { }
 
-  /**
-   * Muestra el indicador de carga.
-   */
-  show(): void {
+  
+ show(): void {
+    console.log('⚡ LOADING SERVICE: show() llamado', new Error().stack); // ⭐ Añade stack para ver la Pila de Llamadas ⭐
     this.loading.set(true);
   }
 
-  /**
-   * Oculta el indicador de carga.
-   */
   hide(): void {
+    console.log('⚡ LOADING SERVICE: hide() llamado', new Error().stack); // ⭐ Añade stack para ver la Pila de Llamadas ⭐
     this.loading.set(false);
   }
 }

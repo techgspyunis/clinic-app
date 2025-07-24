@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
+import { LoadingService } from '../../core/services/loading.service';
 
 @Component({
     selector: 'app-notfound',
@@ -65,4 +66,11 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
             </div>
         </div>`
 })
-export class Notfound {}
+export class Notfound implements OnInit{
+constructor(private loadingService: LoadingService) { }
+
+  ngOnInit() {
+    this.loadingService.hide(); // ⭐ Asegura que el spinner esté oculto al iniciar esta pantalla
+  }
+  
+}

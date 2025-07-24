@@ -1,5 +1,5 @@
 // src/app/pages/auth/login.ts
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router'; // Mantenemos RouterModule
 import { ButtonModule } from 'primeng/button';
@@ -12,6 +12,7 @@ import { ToastModule } from 'primeng/toast'; // Necesario para p-toast
 import { AuthService } from '../../core/auth.service'; // <--- Importa tu AuthService
 import { MessageService } from 'primeng/api'; // <--- Importa MessageService para Toast
 import { LoginRequest } from '../../core/models/auth.models'; // <--- Importa LoginRequest para tipado
+import { LoadingService } from '../../core/services/loading.service'; // Asegúrate de la ruta correcta
 
 @Component({
     selector: 'app-login',
@@ -79,7 +80,7 @@ import { LoginRequest } from '../../core/models/auth.models'; // <--- Importa Lo
         </div>
     `
 })
-export class Login {
+export class Login implements OnInit{
     nombreUsuario: string = '';
     password: string = '';
     checked: boolean = false;
@@ -87,9 +88,14 @@ export class Login {
 
     constructor(
         private authService: AuthService,
-        private messageService: MessageService // Inyecta MessageService para notificaciones
+        private messageService: MessageService, // Inyecta MessageService para notificaciones
+        private loadingService: LoadingService
     ) { }
 
+    ngOnInit() {
+    this.loadingService.hide(); // ⭐ Asegura que el spinner esté oculto al iniciar esta pantalla
+  }
+  
     login(): void {
         // Validaciones básicas antes de enviar
         if (!this.nombreUsuario || !this.password) {

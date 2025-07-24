@@ -18,7 +18,7 @@ import { LoadingService } from './app/core/services/loading.service';
     </div>
 
     <p-blockUI [blocked]="loadingService.loading()">
-      <div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+      <div class="loading-content-wrapper">
         <span style="font-size: 1.5em; font-weight: bold;">Loading...</span>
         </div>
     </p-blockUI>`
@@ -29,6 +29,8 @@ export class AppComponent implements OnInit{
   }
 
   ngOnInit() {
+    console.log('AppComponent ngOnInit: loadingService.loading() en ngOnInit:', this.loadingService.loading());
+     this.loadingService.hide();
     // Puedes inicializar algo aquí si es necesario
   }
 }
