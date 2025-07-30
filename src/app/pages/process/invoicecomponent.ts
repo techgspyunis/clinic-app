@@ -175,7 +175,7 @@ interface NewInvoiceForm {
               <th>Prel. Date</th>
               <th>Patient Ref</th>
               <th>Amount</th>
-              <th>Unknow</th>
+              <th>Invoice reference</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-detail>
@@ -184,7 +184,7 @@ interface NewInvoiceForm {
               <td>{{ detail.name_patient }}</td>
               <td>{{ detail.date_prel | date:'yyyy-MM-dd' }}</td>
               <td>{{ detail.ref_patient }}</td>
-              <td>{{ detail.montant | currency:'USD':'symbol':'1.2-2' }}</td>
+              <td>{{ detail.montant | currency:'EUR':'symbol':'1.2-2' }}</td>
               <td>{{ detail.unknow }}</td>
             </tr>
           </ng-template>
@@ -219,7 +219,7 @@ interface NewInvoiceForm {
                   <th>Prel. Date</th>
                   <th>Patient Ref</th>
                   <th>Amount</th>
-                  <th>Unknow</th>
+                  <th>Invoice reference</th>
                   <th>Active</th>
                 </tr>
               </ng-template>
@@ -229,7 +229,7 @@ interface NewInvoiceForm {
                   <td>{{ detail.name_patient }}</td>
                   <td>{{ detail.date_prel | date:'yyyy-MM-dd' }}</td>
                   <td>{{ detail.ref_patient }}</td>
-                  <td>{{ detail.montant | currency:'USD':'symbol':'1.2-2' }}</td>
+                  <td>{{ detail.montant | currency:'EUR':'symbol':'1.2-2' }}</td>
                   <td>{{ detail.unknow }}</td>
                   <td><p-tag [value]="detail.is_active ? 'Yes' : 'No'" [severity]="detail.is_active ? 'success' : 'danger'" /></td>
                 </tr>
@@ -509,6 +509,8 @@ submittedZipFile: boolean = false;
   }
 
   parseExcelData(excelData: any[]) {
+    // console.log('Starting parseExcelData. Raw excelData:', excelData); // Puedes descomentar para depurar
+
     if (!excelData || excelData.length < 2) {
       this.messageService.add({
         severity: 'error',
@@ -529,7 +531,7 @@ submittedZipFile: boolean = false;
       'date_prel',
       'ref_patient',
       'montant',
-      'unknow',
+      'invoice reference',
     ];
 
     const isValidHeader = expectedHeaders.every((expected, index) =>
@@ -549,26 +551,77 @@ submittedZipFile: boolean = false;
 
     const details: InvoiceDetailPayload[] = [];
     for (const row of rows) {
+      // console.log('Processing row:', row); // Puedes descomentar para depurar
       if (row.length < expectedHeaders.length || row.every((cell: any) => cell === null || cell === undefined || cell === '')) {
+        // console.warn('Skipping empty or incomplete row:', row); // Puedes descomentar para depurar
         continue;
       }
       try {
+        let parsedDatePrel: string = '';
+        const rawDatePrel = row[2];
+        // console.log('Raw date_prel:', rawDatePrel, 'Type:', typeof rawDatePrel); // Puedes descomentar para depurar
+
+        // ⭐ Lógica mejorada para parsear la fecha ⭐
+        if (typeof rawDatePrel === 'number') {
+          // Si es un número, asume que es un número de serie de fecha de Excel
+          const excelDateParts = XLSX.SSF.parse_date_code(rawDatePrel); // Esto devuelve { y, m, d, H, M, S }
+          // ⭐ CORRECCIÓN AQUÍ: Crea un objeto Date real a partir de las partes ⭐
+          const dateObj = new Date(excelDateParts.y, excelDateParts.m - 1, excelDateParts.d); // Meses son 0-indexados
+          
+          if (dateObj && !isNaN(dateObj.getTime())) { // Verifica que sea una fecha válida
+            parsedDatePrel = dateObj.toISOString().slice(0, 10);
+          } else {
+            console.warn('Invalid Excel date number, setting to empty string:', rawDatePrel);
+            // parsedDatePrel remains ''
+          }
+        } else if (typeof rawDatePrel === 'string' && rawDatePrel.trim() !== '') {
+          // Si es una cadena, intenta parsearla.
+          const dateObj = new Date(rawDatePrel);
+          if (!isNaN(dateObj.getTime())) {
+            parsedDatePrel = dateObj.toISOString().slice(0, 10);
+          } else {
+            console.warn('Invalid Excel date string, setting to empty string:', rawDatePrel);
+            // parsedDatePrel remains ''
+          }
+        }
+        // Si rawDatePrel es null, undefined o una cadena vacía, parsedDatePrel se mantiene como ''
+        // console.log('Parsed date_prel:', parsedDatePrel); // Puedes descomentar para depurar
+
+        const rawMontant = row[4];
+        let parsedMontant: number;
+        // console.log('Raw montant:', rawMontant, 'Type:', typeof rawMontant); // Puedes descomentar para depurar
+
+        if (typeof rawMontant === 'number') {
+            parsedMontant = rawMontant;
+        } else if (typeof rawMontant === 'string') {
+            const cleanedMontantString = rawMontant.replace(',', '.'); // Reemplazar coma por punto
+            parsedMontant = parseFloat(cleanedMontantString);
+            if (isNaN(parsedMontant)) {
+                console.warn('Invalid montant string, setting to 0:', rawMontant);
+                parsedMontant = 0;
+            }
+        } else {
+            console.warn('Unexpected type for montant, setting to 0:', rawMontant);
+            parsedMontant = 0;
+        }
+        // console.log('Parsed montant:', parsedMontant); // Puedes descomentar para depurar
+
         const detail: InvoiceDetailPayload = {
           demande: row[0] ? row[0].toString() : '',
           name_patient: row[1] ? row[1].toString() : '',
-          date_prel: row[2] ? new Date(row[2]).toISOString().slice(0, 10) : '',
+          date_prel: parsedDatePrel,
           ref_patient: row[3] ? row[3].toString() : '',
-          montant: typeof row[4] === 'number' ? row[4] : parseFloat(row[4]),
+          montant: parsedMontant,
           unknow: row[5] ? row[5].toString() : null,
         };
         details.push(detail);
       } catch (e) {
-        console.error('Error parsing Excel row:', row, e);
+        console.error('ERROR during row parsing. Row that caused error:', row, 'Error:', e);
         this.messageService.add({
           severity: 'error',
           summary: 'Parsing Error',
-          detail: 'There was a problem reading a row from the Excel file. Ensure all data is valid.',
-          life: 3000,
+          detail: 'There was a problem reading a row from the Excel file. Ensure all data is valid. Check console for details.',
+          life: 5000,
         });
         this.newInvoice.details = [];
         return;
@@ -738,7 +791,7 @@ this.loadingService.hide();
       'date_prel',
       'ref_patient',
       'montant',
-      'unknow',
+      'invoice reference',
     ];
 
     // Crea un array de arrays, donde la primera fila son los encabezados
