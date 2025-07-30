@@ -566,22 +566,35 @@ submittedZipFile: boolean = false;
           // Si es un número, asume que es un número de serie de fecha de Excel
           const excelDateParts = XLSX.SSF.parse_date_code(rawDatePrel); // Esto devuelve { y, m, d, H, M, S }
           // ⭐ CORRECCIÓN AQUÍ: Crea un objeto Date real a partir de las partes ⭐
-          const dateObj = new Date(excelDateParts.y, excelDateParts.m - 1, excelDateParts.d); // Meses son 0-indexados
+          const dateObj = new Date(Date.UTC(excelDateParts.y, excelDateParts.m - 1, excelDateParts.d)); // Meses son 0-indexados
           
-          if (dateObj && !isNaN(dateObj.getTime())) { // Verifica que sea una fecha válida
+          if (dateObj && !isNaN(dateObj.getTime())) {
             parsedDatePrel = dateObj.toISOString().slice(0, 10);
           } else {
             console.warn('Invalid Excel date number, setting to empty string:', rawDatePrel);
-            // parsedDatePrel remains ''
           }
         } else if (typeof rawDatePrel === 'string' && rawDatePrel.trim() !== '') {
-          // Si es una cadena, intenta parsearla.
-          const dateObj = new Date(rawDatePrel);
-          if (!isNaN(dateObj.getTime())) {
-            parsedDatePrel = dateObj.toISOString().slice(0, 10);
+          const parts = rawDatePrel.split('-');
+          if (parts.length === 3) {
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1; // Meses son 0-indexados
+            const day = parseInt(parts[2], 10);
+            
+            const dateObj = new Date(Date.UTC(year, month, day)); // Crea la fecha directamente en UTC
+            
+            if (!isNaN(dateObj.getTime())) {
+              parsedDatePrel = dateObj.toISOString().slice(0, 10);
+            } else {
+              console.warn('Invalid Excel date string parts, setting to empty string:', rawDatePrel);
+            }
           } else {
-            console.warn('Invalid Excel date string, setting to empty string:', rawDatePrel);
-            // parsedDatePrel remains ''
+            // Fallback si la cadena no es YYYY-MM-DD, aunque ya no debería ser 1970
+            const dateObj = new Date(rawDatePrel); // Esto seguirá siendo problemático con zonas horarias
+            if (!isNaN(dateObj.getTime())) {
+                parsedDatePrel = dateObj.toISOString().slice(0, 10);
+            } else {
+                console.warn('Unparseable Excel date string, setting to empty string:', rawDatePrel);
+            }
           }
         }
         // Si rawDatePrel es null, undefined o una cadena vacía, parsedDatePrel se mantiene como ''
