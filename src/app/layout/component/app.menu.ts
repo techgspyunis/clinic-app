@@ -35,7 +35,7 @@ export class AppMenu {
              {
                 label: 'Tools',
                 items: [
-                    { label: 'Generate order', icon: 'pi pi-fw pi-id-card', routerLink: ['/tools/generate-order'] }
+                    { label: 'Generate order', icon: 'pi pi-fw pi-id-card', routerLink: ['/tool/generate-order'] }
                 ]
             },
              {
