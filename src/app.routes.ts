@@ -14,6 +14,7 @@ export const appRoutes: Routes = [
         children: [
             { path: '', component: Dashboard },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
+            { path: 'parameter', loadChildren: () => import('./app/pages/parameter/parameter.routes') },
             { path: 'process', loadChildren: () => import('./app/pages/process/process.routes') },
             { path: 'tool', loadChildren: () => import('./app/pages/tool/tool.routes') },
             { path: 'documentation', component: Documentation },

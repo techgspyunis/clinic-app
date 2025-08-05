@@ -41,7 +41,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
     catchError((error: HttpErrorResponse) => {
       // Si el error es 401 (No autorizado) o 403 (Prohibido)
       if (error.status === 401 || error.status === 403) {
-        console.warn('Unauthorized access. Redirecting to login.');
+        // console.warn('Unauthorized access. Redirecting to login.');
         // Llama al método logout del AuthService para limpiar la sesión y redirigir
         authService.logout();
         // Relanza el error para que el componente/servicio que hizo la petición pueda manejarlo si es necesario

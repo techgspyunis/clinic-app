@@ -13,12 +13,12 @@ export class LoadingService {
 
   
  show(): void {
-    console.log('⚡ LOADING SERVICE: show() llamado', new Error().stack); // ⭐ Añade stack para ver la Pila de Llamadas ⭐
+    // console.log('⚡ LOADING SERVICE: show() llamado', new Error().stack); // ⭐ Añade stack para ver la Pila de Llamadas ⭐
     this.loading.set(true);
   }
 
   hide(): void {
-    console.log('⚡ LOADING SERVICE: hide() llamado', new Error().stack); // ⭐ Añade stack para ver la Pila de Llamadas ⭐
+    // console.log('⚡ LOADING SERVICE: hide() llamado', new Error().stack); // ⭐ Añade stack para ver la Pila de Llamadas ⭐
     this.loading.set(false);
   }
 }

@@ -24,6 +24,15 @@ export class AppMenu {
                 label: 'Home',
                 items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
             },
+{
+                label: 'Parameters',
+                items: [
+                    { label: 'Centre Medical', icon: 'pi pi-fw pi-id-card', routerLink: ['/parameter/centre-medical'] },
+                    { label: 'Translation Labo', icon: 'pi pi-fw pi-id-card', routerLink: ['/parameter/translation-labo'] },
+                    { label: 'Translation Hw', icon: 'pi pi-fw pi-id-card', routerLink: ['/parameter/translation-hw'] },
+                    { label: 'Translation Nomenclature', icon: 'pi pi-fw pi-id-card', routerLink: ['/parameter/translation'] }
+                ]
+            },
             {
                 label: 'Process',
                 items: [
