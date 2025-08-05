@@ -190,6 +190,7 @@ interface NewTranslationForm {
                 optionValue="code"
                 [filter]="true"
                 required
+                appendTo="body"
                 class="w-full"
                 ></p-dropdown>
                 <small
@@ -209,6 +210,7 @@ interface NewTranslationForm {
                 optionValue="code"
                 [filter]="true"
                 required
+                appendTo="body"
                 class="w-full"
                 ></p-dropdown>
                 <small
