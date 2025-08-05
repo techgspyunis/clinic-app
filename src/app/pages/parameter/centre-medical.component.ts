@@ -336,6 +336,7 @@ export class CentreMedicalComponent implements OnInit {
           this.loadMedicalCenters(); // Recarga la lista para ver el cambio
         },
         error: (error) => {
+          this.loadingService.hide();
           console.error('Error updating medical center:', error);
           this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error?.message || 'Error updating medical center.', life: 3000 });
         },
@@ -355,6 +356,7 @@ export class CentreMedicalComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error creating medical center:', error);
+          this.loadingService.hide();
           this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error?.message || 'Error creating medical center.', life: 3000 });
         },
         complete: () => this.loadingService.hide() // Oculta el spinner al completar (éxito o error)

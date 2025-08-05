@@ -334,6 +334,7 @@ export class TranslationHwComponent implements OnInit {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message || 'Translation hw updated successfully.', life: 3000 });
           this.hideDialog(); // Cierra el diálogo
           this.loadTranslationHw(); // Recarga la lista para ver el cambio
+          this.loadingService.hide();
         },
         error: (error) => {
           console.error('Error updating translation hw:', error);
@@ -356,6 +357,7 @@ export class TranslationHwComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error creating translation hw:', error);
+          this.loadingService.hide();
           this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error?.error || 'Error creating translation hw.', life: 3000 });
         },
         complete: () => this.loadingService.hide() // Oculta el spinner al completar (éxito o error)
