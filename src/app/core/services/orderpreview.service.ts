@@ -30,4 +30,8 @@ export class OrderPreviewService {
   createOrder(payload: NewOrderPreviewPayload): Observable<any> {
     return this.http.post<any>(this.apiUrl, payload);
   }
+
+  deleteOrder(orderId: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${orderId}`);
+  }
 }

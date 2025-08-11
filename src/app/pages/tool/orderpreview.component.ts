@@ -19,7 +19,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
 import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api'; // Servicios para confirmación y mensajes toast
 import * as XLSX from 'xlsx';
 
 import { OrderPreviewService } from '../../core/services/orderpreview.service';
@@ -37,6 +37,8 @@ import { OrderPreview, OrderDetailPreview, NewOrderPreviewPayload, NewOrderPrevi
   ],
   template: `
     <p-toast />
+
+    <p-confirmdialog /> <!-- Componente para diálogos de confirmación -->
 
     <p-toolbar styleClass="mb-4">
       <ng-template pTemplate="start">
@@ -225,7 +227,7 @@ import { OrderPreview, OrderDetailPreview, NewOrderPreviewPayload, NewOrderPrevi
       </ng-template>
     </p-dialog>
   `,
-  providers: [MessageService, DatePipe]
+  providers: [MessageService, DatePipe, ConfirmationService]
 })
 export class OrderPreviewComponent implements OnInit {
 
@@ -272,7 +274,8 @@ export class OrderPreviewComponent implements OnInit {
   constructor(
     private orderPreviewService: OrderPreviewService,
     private messageService: MessageService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private confirmationService: ConfirmationService // Servicio para diálogos de confirmación
   ) {}
 
   ngOnInit() {
@@ -310,7 +313,7 @@ export class OrderPreviewComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Could not load order previews.',
+          detail: error.error.message || 'Could not load order previews.',
           life: 3000,
         });
       },
@@ -507,9 +510,40 @@ export class OrderPreviewComponent implements OnInit {
 
   // --- Otros Métodos ---
   deleteOrder(order: OrderPreview) {
-    // Implementar lógica para eliminar (desactivar) una orden si es necesario
-    // Por ahora, solo se visualiza, el endpoint de delete no se ha definido.
-    this.messageService.add({ severity: 'info', summary: 'Info', detail: 'Delete functionality not implemented yet.', life: 3000 });
+
+    console.log(order);
+
+    this.confirmationService.confirm({
+      message: `Are you sure you want to deactivate order preview "${order.description}"?`,
+      header: 'Confirm Deactivation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.loadingService.show(); // Muestra el spinner de carga
+        this.orderPreviewService.deleteOrder(order.order_id).subscribe({
+          next: (response) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: response.message || 'Order preview deactivated successfully.',
+              life: 3000,
+            });
+            this.loadOrderPreviews(); // Recarga la lista para ver el cambio de estado
+          },
+          error: (error) => {
+            console.error('Error deactivating order preview:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error?.message || 'Error deactivating the order preview.',
+              life: 3000,
+            });
+          },
+          complete: () => this.loadingService.hide() // Oculta el spinner al completar (éxito o error)
+        });
+      },
+    });
+
+
   }
 
   downloadOrderFormat() {
