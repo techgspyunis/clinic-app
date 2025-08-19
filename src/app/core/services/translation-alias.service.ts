@@ -5,6 +5,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../constants/api.constants';
 import {
   TranslationAlias,
   TranslationAliasCreatePayload,
@@ -16,7 +17,7 @@ import {
   providedIn: 'root'
 })
 export class TranslationAliasService {
-  private apiUrl = 'https://clinic-express.onrender.com/translationAliases'; // Reemplaza con la URL de tu API
+  private apiUrl = `${API_BASE_URL}/translationAliases`; // Reemplaza con la URL de tu API
 
   constructor(private http: HttpClient) {}
 

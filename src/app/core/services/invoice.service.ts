@@ -1,8 +1,7 @@
-// src/app/core/services/invoice.service.ts
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../constants/api.constants';
 import {
   Invoice,
   InvoiceDetail,
@@ -32,11 +31,11 @@ export interface LabFileUploadResponse {
   providedIn: 'root',
 })
 export class InvoiceService {
-  private apiUrl = 'https://clinic-express.onrender.com/invoices'; // ⭐ Base URL para Invoices
+  private apiUrl = `${API_BASE_URL}/invoices`; // ⭐ Base URL para Invoices
 
-  private uploadLabFileUrl = 'https://clinic-express.onrender.com/upload-lab-file';
+  private uploadLabFileUrl = `${API_BASE_URL}/upload-lab-file`;
 
-  private administrativeApiUrl = 'https://clinic-express.onrender.com/administratives';
+  private administrativeApiUrl = `${API_BASE_URL}/administratives`;
 
   constructor(private http: HttpClient) {}
 

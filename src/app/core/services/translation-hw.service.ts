@@ -6,6 +6,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../constants/api.constants';
 import {
   TranslationHw,
   TranslationHwCreatePayload,
@@ -18,7 +19,7 @@ import {
   providedIn: 'root'
 })
 export class TranslationHwService {
-  private apiUrl = 'https://clinic-express.onrender.com/translationHw'; // URL base del endpoint para hardware de traducción
+  private apiUrl = `${API_BASE_URL}/translationHw`; // URL base del endpoint para hardware de traducción
 
   constructor(private http: HttpClient) { }
 

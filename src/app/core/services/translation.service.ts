@@ -6,6 +6,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../constants/api.constants';
 import {
   Translation,
   TranslationCreatePayload,
@@ -18,7 +19,7 @@ import {
   providedIn: 'root'
 })
 export class TranslationService {
-  private apiUrl = 'https://clinic-express.onrender.com/translations'; // URL base del endpoint para traducciones
+  private apiUrl = `${API_BASE_URL}/translations`; // URL base del endpoint para traducciones
 
   constructor(private http: HttpClient) { }
 

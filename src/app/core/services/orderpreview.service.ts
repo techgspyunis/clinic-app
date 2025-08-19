@@ -3,6 +3,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../constants/api.constants';
 
 import { OrderPreview, OrderDetailPreview, NewOrderPreviewPayload } from '../models/orderpreview.model';
 
@@ -10,7 +11,7 @@ import { OrderPreview, OrderDetailPreview, NewOrderPreviewPayload } from '../mod
   providedIn: 'root'
 })
 export class OrderPreviewService {
-  private apiUrl = `https://clinic-express.onrender.com/order-previews`;
+  private apiUrl = `${API_BASE_URL}/order-previews`;
 
   constructor(private http: HttpClient) {}
 

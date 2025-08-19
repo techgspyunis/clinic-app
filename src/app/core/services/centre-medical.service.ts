@@ -1,11 +1,7 @@
-// src/app/core/services/centre-medical.service.ts
-//
-// Este servicio se encarga de la comunicación con el backend para la entidad CentreMedical.
-// Utiliza HttpClient para realizar las operaciones CRUD (Crear, Leer, Actualizar, Borrar).
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../constants/api.constants';
 import {
   CentreMedical,
   CentreMedicalCreatePayload,
@@ -18,8 +14,8 @@ import {
   providedIn: 'root'
 })
 export class CentreMedicalService {
-  private apiUrl = 'https://clinic-express.onrender.com/centre-medical'; // URL base del endpoint para centros médicos
-
+  private apiUrl = `${API_BASE_URL}/centre-medical`; // URL base del endpoint para centros médicos
+//src/app/core/auth.service.ts
   constructor(private http: HttpClient) { }
 
   /**

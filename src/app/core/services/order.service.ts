@@ -3,6 +3,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../constants/api.constants';
 import {
   Order,
   OrderDetail,
@@ -14,7 +15,7 @@ import {
   providedIn: 'root', // Esto lo hace un servicio singleton disponible en toda la aplicación (standalone)
 })
 export class OrderService {
-  private apiUrl = 'https://clinic-express.onrender.com/orders';
+  private apiUrl = `${API_BASE_URL}/orders`;
 
   constructor(private http: HttpClient) {}
 
