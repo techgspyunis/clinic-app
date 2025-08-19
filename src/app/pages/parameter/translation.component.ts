@@ -30,6 +30,7 @@ import { TranslationHwService } from '../../core/services/translation-hw.service
 import { TranslationLabo } from '../../core/models/translation-labo.model'; // Modelo para TranslationLabo
 import { TranslationHw } from '../../core/models/translation-hw.model'; // Modelo para TranslationHw
 
+import { TranslationAliasModalComponent } from '../parameter/translation-alias-modal.component'
 
 /**
  * @interface NewTranslationForm
@@ -59,7 +60,8 @@ interface NewTranslationForm {
     DialogModule,
     TagModule,
     TooltipModule,
-    DropdownModule // Importamos DropdownModule
+    DropdownModule, // Importamos DropdownModule
+    TranslationAliasModalComponent
   ],
   template: `
     <p-toast />
@@ -136,11 +138,20 @@ interface NewTranslationForm {
               />
               <p-button
                 icon="pi pi-trash"
+                class="mr-2"
                 severity="danger"
                 [rounded]="true"
                 [outlined]="true"
                 (click)="deactivateTranslation(translation)"
                 pTooltip="Deactivate"
+                tooltipPosition="bottom"
+              />
+              <p-button
+                icon="pi pi-th-large"
+                severity="info"
+                [rounded]="true"
+                [outlined]="true"
+                (click)="manageAlias(translation)"
                 tooltipPosition="bottom"
               />
             </td>
@@ -236,6 +247,17 @@ interface NewTranslationForm {
         />
       </ng-template>
     </p-dialog>
+
+
+        <!-- NUEVO DIÁLOGO PARA GESTIONAR PERSONAS -->
+    <p-dialog [(visible)]="translationAliasDialog" [style]="{ width: '75vw' }" header="Alias by translation" [modal]="true" (onHide)="hideTranslationAliasDialog()">
+      <div *ngIf="selectedTranslationId">
+        <!-- AQUÍ SE USA EL @Input() del componente hijo -->
+        <app-translation-alias-modal [translationId]="selectedTranslationId"></app-translation-alias-modal>
+      </div>
+    </p-dialog>
+
+
   `,
   providers: [MessageService, ConfirmationService, DatePipe]
 })
@@ -244,12 +266,17 @@ export class TranslationComponent implements OnInit {
 
   translations = signal<Translation[]>([]);
   translationDialog: boolean = false;
+  translationAliasDialog: boolean = false; // Nuevo: para el diálogo de personas
   submitted: boolean = false;
   dialogHeader: string = 'Create Translation';
+
+  selectedTranslationId: string | null = null; // Nuevo: para pasar el ID al componente hijo
 
   // Opciones para los dropdowns de códigos de laboratorio y Hw
   laboCodes: TranslationLabo[] = [];
   hwCodes: TranslationHw[] = [];
+
+
 
   currentTranslation: Partial<Translation> = {
     name: '',
@@ -344,6 +371,16 @@ export class TranslationComponent implements OnInit {
         });
       }
     });
+  }
+
+  manageAlias(translation: Translation): void {
+    this.selectedTranslationId = translation.translation_id;
+    this.translationAliasDialog = true;
+  }
+
+  hideTranslationAliasDialog(): void {
+    this.translationAliasDialog = false;
+    this.selectedTranslationId = null; // Es buena práctica limpiar el valor al cerrar
   }
 
 
