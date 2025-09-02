@@ -15,11 +15,10 @@ export class OrderPreviewService {
 
   constructor(private http: HttpClient) {}
 
-  getOrders(year: number, month: number, week: number): Observable<OrderPreview[]> {
+  getOrders(year: number, month: number): Observable<OrderPreview[]> {
     let params = new HttpParams()
       .set('year', year.toString())
       .set('month', month.toString())
-      .set('week', week.toString());
 
     return this.http.get<OrderPreview[]>(this.apiUrl, { params });
   }

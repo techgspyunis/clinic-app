@@ -49,7 +49,7 @@ import { OrderPreview, OrderDetailPreview, NewOrderPreviewPayload, NewOrderPrevi
       <ng-template pTemplate="center">
         <p-dropdown [options]="years" [(ngModel)]="selectedYear" (ngModelChange)="loadOrderPreviews()" placeholder="Select Year" styleClass="w-full md:w-10rem mr-2" />
         <p-dropdown [options]="months" [(ngModel)]="selectedMonth" (ngModelChange)="loadOrderPreviews()" optionLabel="name" optionValue="value" placeholder="Select Month" styleClass="w-full md:w-12rem mr-2" />
-        <p-dropdown [options]="weeks" [(ngModel)]="selectedWeek" (ngModelChange)="loadOrderPreviews()" optionLabel="name" optionValue="value" placeholder="Select Week" styleClass="w-full md:w-10rem" />
+        <!-- <p-dropdown [options]="weeks" [(ngModel)]="selectedWeek" (ngModelChange)="loadOrderPreviews()" optionLabel="name" optionValue="value" placeholder="Select Week" styleClass="w-full md:w-10rem" /> -->
       </ng-template>
 
       <ng-template pTemplate="end">
@@ -301,7 +301,7 @@ export class OrderPreviewComponent implements OnInit {
     }
 
     this.loadingService.show();
-    this.orderPreviewService.getOrders(this.selectedYear, this.selectedMonth, this.selectedWeek || 1).subscribe({
+    this.orderPreviewService.getOrders(this.selectedYear, this.selectedMonth).subscribe({
       next: (data) => {
         this.loadingService.hide();
         this.orders.set(data);
